@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the reading nook.</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #fdf6f0; --card: #ffffff; --text: #4a4e69; --muted: #9a8c98;
+            --fiction: #bde0fe; --nonfiction: #d1e7dd; --mystery: #e2d1f9;
+            --romance: #ffcad4; --academic: #ffd8be; --thriller: #a2d2ff;
+            --horror: #ffb5a7; --scifi: #caffbf; --fantasy: #faedcb;
+            --manhwa: #9bf6ff; --manhua: #bdb2ff; --dark: #6b705c;
+        }
+
+        body.dark-mode { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --muted: #888; }
+
+        body {
+            background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text);
+            display: flex; justify-content: center; padding: 20px; transition: all 0.3s ease;
+        }
+
+        .container {
+            width: 100%; max-width: 500px; background: var(--card); padding: 30px;
+            border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; color: var(--muted); font-weight: 300; letter-spacing: 2px; font-size: 1.4rem; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px;
+            text-align: center; background: var(--bg); padding: 15px; border-radius: 20px;
+        }
+        .stat-box span { display: block; font-size: 0.6rem; text-transform: uppercase; color: var(--muted); }
+        .stat-box strong { font-size: 1.1rem; color: var(--text); }
+
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        
+        /* Aesthetic Genre Selector */
+        #genre-selector {
+            max-height: 140px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 18px; padding: 15px; background: var(--bg); font-size: 0.85rem;
+        }
+        .genre-option {
+            display: inline-flex; align-items: center; margin-right: 10px; margin-bottom: 8px;
+            cursor: pointer; user-select: none; color: var(--text); font-size: 0.7rem;
+            background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 20px; transition: 0.2s;
+        }
+        body.dark-mode .genre-option { background: rgba(255,255,255,0.05); }
+        .genre-option input { appearance: none; -webkit-appearance: none; width: 10px; height: 10px; border: 1.5px solid var(--muted); border-radius: 50%; margin-right: 6px; cursor: pointer; }
+        .genre-option input:checked { background: var(--romance); border-color: var(--romance); }
+
+        .sort-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .sort-row select, .sort-row input { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.8rem; outline: none; background: #fafafa; color: #4a4e69;}
+
+        input[type="text"] { padding: 14px; border: 1px solid rgba(0,0,0,0.05); border-radius: 15px; background: #fafafa; color: #4a4e69; outline: none; }
+        .add-btn { background-color: var(--romance); border: none; padding: 14px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; }
+
+        /* Accordion Styling */
+        .section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 10px 0; margin-top: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .section-header h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0; }
+        .arrow { font-size: 0.7rem; color: var(--muted); transition: 0.3s; }
+        .collapsed .arrow { transform: rotate(-90deg); }
+        .section-content { display: block; padding-top: 10px; }
+        .collapsed + .section-content { display: none; }
+
+        .book-card {
+            background: var(--bg); padding: 15px; border-radius: 20px; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 15px; border-left: 6px solid transparent;
+        }
+        .letter-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; text-transform: uppercase; }
+        .book-info { flex-grow: 1; }
+        .genre-tag { font-size: 0.5rem; background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 4px; color: var(--muted); margin-right: 3px; text-transform: uppercase; }
+
+        .action-btn { border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; }
+        .genre-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .legend-item { font-size: 0.55rem; display: flex; align-items: center; gap: 4px; color: var(--muted); text-transform: uppercase; cursor: pointer; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+        #modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal { background: white; padding: 30px; border-radius: 25px; width: 260px; text-align: center; color: #333; }
+    </style>
+</head>
+<body>
+
+<div id="modal-overlay">
+    <div class="modal">
+        <h3 style="margin:0 0 20px 0; font-weight:300;">how was it?</h3>
+        <select id="rating-dropdown" style="width: 100%; margin-bottom: 20px; padding:10px; border-radius:10px;">
+            <option value="5">⭐⭐⭐⭐⭐ Perfection</option>
+            <option value="4">⭐⭐⭐⭐ Great</option>
+            <option value="3">⭐⭐⭐ Decent</option>
+            <option value="2">⭐⭐ Not for me</option>
+            <option value="1">⭐ DNF</option>
+        </select>
+        <button class="add-btn" style="width:100%" onclick="confirmRating()">save rating</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>the reading nook.</h1>
+        <button class="action-btn" style="background:var(--fiction)" onclick="toggleDarkMode()">Mode</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box"><strong id="stat-total">0</strong><span>read</span></div>
+        <div class="stat-box"><strong id="stat-reading">0</strong><span>reading</span></div>
+        <div class="stat-box"><strong id="stat-avg">0</strong><span>avg vibe</span></div>
+    </div>
+    
+    <div class="input-group">
+        <input type="text" id="title" placeholder="book title...">
+        <input type="text" id="author" placeholder="author (optional)...">
+        <div id="genre-selector"><div id="checkbox-list"></div></div>
+        <button class="add-btn" onclick="addBook()">add to tbr</button>
+    </div>
+
+    <div class="sort-row">
+        <input type="text" id="search-bar" placeholder="🔍 search..." onkeyup="updateUI()">
+        <select id="sort-by" onchange="updateUI()">
+            <option value="date">Latest</option>
+            <option value="title">A-Z</option>
+            <option value="rating">Top Rated</option>
+        </select>
+    </div>
+
+    <div class="section-header" onclick="toggleSection(this)"><h3>on the nightstand.</h3><span class="arrow">▼</span></div>
+    <div id="reading-content" class="section-content"></div>
+
+    <div class="section-header collapsed" onclick="toggleSection(this)"><h3>tbr.</h3><span class="arrow">▼</span></div>
+    <div id="tbr-content" class="section-content"></div>
+
+    <div class="section-header collapsed" onclick="toggleSection(this)"><h3>already read.</h3><span class="arrow">▼</span></div>
+    <div id="read-content" class="section-content"></div>
+
+    <div class="section-header collapsed" onclick="toggleSection(this)"><h3>the graveyard.</h3><span class="arrow">▼</span></div>
+    <div id="dnf-content" class="section-content"></div>
+
+    <button class="add-btn" style="background:var(--mystery); margin-top:20px; width:100%; color:#4a4e69" onclick="shareShelf()">📸 share favorites</button>
+    <div class="genre-legend" id="legend"></div>
+</div>
+
+<script>
+    let library = JSON.parse(localStorage.getItem('myLibrary')) || [];
+    let currentBookId = null;
+
+    const colors = {
+        'Fiction': '#bde0fe', 'Non-Fiction': '#d1e7dd', 'Mystery': '#e2d1f9', 
+        'Romance': '#ffcad4', 'Academic': '#ffd8be', 'Thriller': '#a2d2ff',
+        'Horror': '#ffb5a7', 'Sci-Fi': '#caffbf', 'Fantasy': '#faedcb',
+        'Manhwa': '#9bf6ff', 'Manhua': '#bdb2ff', 'Dark': '#6b705c'
+    };
+
+    const checkboxList = document.getElementById('checkbox-list');
+    Object.keys(colors).forEach(g => {
+        checkboxList.innerHTML += `<label class="genre-option"><input type="checkbox" name="genre" value="${g}"> ${g}</label>`;
+    });
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+
+    function toggleSection(header) { header.classList.toggle('collapsed'); }
+
+    function addBook() {
+        const title = document.getElementById('title').value.trim();
+        const author = document.getElementById('author').value.trim() || "Unknown Author";
+        const selectedGenres = Array.from(document.querySelectorAll('input[name="genre"]:checked')).map(cb => cb.value);
+        if(!title) return;
+        library.push({ id: Date.now(), title, author, genres: selectedGenres.length ? selectedGenres : ['Fiction'], status: 'tbr', rating: 0 });
+        updateUI();
+        document.getElementById('title').value = ''; document.getElementById('author').value = '';
+        document.querySelectorAll('input[name="genre"]').forEach(cb => cb.checked = false);
+    }
+
+    function moveStatus(id, newStatus) {
+        if(newStatus === 'read') { currentBookId = id; document.getElementById('modal-overlay').style.display = 'flex'; }
+        else { library = library.map(b => b.id === id ? {...b, status: newStatus} : b); updateUI(); }
+    }
+
+    function confirmRating() {
+        const r = parseInt(document.getElementById('rating-dropdown').value);
+        library = library.map(b => b.id === currentBookId ? {...b, status: 'read', rating: r} : b);
+        document.getElementById('modal-overlay').style.display = 'none';
+        updateUI();
+    }
+
+    function updateUI() {
+        localStorage.setItem('myLibrary', JSON.stringify(library));
+        const search = document.getElementById('search-bar').value.toLowerCase();
+        const sort = document.getElementById('sort-by').value;
+        
+        let displayList = [...library].sort((a, b) => {
+            if (sort === 'title') return a.title.localeCompare(b.title);
+            if (sort === 'rating') return b.rating - a.rating;
+            return b.id - a.id;
+        });
+
+        const contents = { reading: '', tbr: '', read: '', dnf: '' };
+        let totalRead = 0, sumRating = 0;
+
+        displayList.forEach(b => {
+            if(!b.title.toLowerCase().includes(search) && !b.author.toLowerCase().includes(search) && !b.genres.join(' ').toLowerCase().includes(search)) return;
+            if(b.status === 'read') { totalRead++; sumRating += b.rating; }
+            const mainColor = colors[b.genres[0]] || '#ddd';
+
+            contents[b.status] += `
+                <div class="book-card" style="border-left-color: ${mainColor}">
+                    <div class="letter-icon" style="background:${mainColor}">${b.title[0]}</div>
+                    <div class="book-info">
+                        <div style="margin-bottom:4px;">${b.genres.map(g => `<span class="genre-tag">${g}</span>`).join('')}</div>
+                        <strong>${b.title}</strong><br><small style="color:var(--muted)">${b.author}</small>
+                    </div>
+                    <div class="btn-row">
+                        ${b.status === 'tbr' ? `<button class="action-btn" style="background:var(--fiction)" onclick="moveStatus(${b.id}, 'reading')">read</button>` : ''}
+                        ${b.status === 'reading' ? `<button class="action-btn" style="background:var(--nonfiction)" onclick="moveStatus(${b.id}, 'read')">done</button>` : ''}
+                        ${b.status !== 'dnf' && b.status !== 'read' ? `<button class="action-btn" style="background:var(--academic)" onclick="moveStatus(${b.id}, 'dnf')">dnf</button>` : ''}
+                        ${b.status === 'read' ? `<span>⭐${b.rating}</span>` : ''}
+                    </div>
+                </div>`;
+        });
+
+        Object.keys(contents).forEach(s => document.getElementById(s + '-content').innerHTML = contents[s] || '<p style="font-size:0.7rem; color:var(--muted); text-align:center;">Empty shelf.</p>');
+        document.getElementById('stat-total').innerText = totalRead;
+        document.getElementById('stat-reading').innerText = library.filter(b => b.status === 'reading').length;
+        document.getElementById('stat-avg').innerText = totalRead ? (sumRating/totalRead).toFixed(1) : '0';
+
+        const legend = document.getElementById('legend');
+        legend.innerHTML = '';
+        Object.keys(colors).forEach(g => legend.innerHTML += `<div class="legend-item" onclick="document.getElementById('search-bar').value='${g}';updateUI()"><div class="dot" style="background:${colors[g]}"></div>${g}</div>`);
+    }
+
+    async function shareShelf() {
+        const readBooks = library.filter(b => b.status === 'read');
+        if (!readBooks.length) return;
+        const exportArea = document.createElement('div');
+        exportArea.style.cssText = "width: 400px; padding: 40px; background: #fff; position: absolute; left: -9999px; font-family: sans-serif;";
+        let html = `<h2 style="text-align:center; font-weight:300; color:#9a8c98; margin-bottom:30px;">nook favorites.</h2>`;
+        readBooks.slice(0, 6).forEach(b => {
+            html += `<div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;"><div style="width:30px; height:30px; background:${colors[b.genres[0]]}; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold;">${b.title[0]}</div><div><strong style="color:#4a4e69">${b.title}</strong><br><small style="color:#9a8c98">⭐ ${b.rating}/5</small></div></div>`;
+        });
+        exportArea.innerHTML = html; document.body.appendChild(exportArea);
+        const canvas = await html2canvas(exportArea);
+        const link = document.createElement('a'); link.download = 'nook.png'; link.href = canvas.toDataURL(); link.click();
+        document.body.removeChild(exportArea);
+    }
+
+    window.addEventListener('keydown', (e) => { if (e.key === 'Delete' && confirm("Wipe shelf?")) { localStorage.clear(); location.reload(); } });
+    updateUI();
+</script>
+</body>
+</html>
