@@ -8,73 +8,39 @@
 
 body.dark-mode { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --muted: #888; }
 
-body {
-    background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text);
-    display: flex; justify-content: center; padding: 20px; transition: all 0.3s ease;
-}
+body { background-color: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); display: flex; justify-content: center; padding: 20px; transition: all 0.3s ease; }
 
-.container {
-    width: 100%; max-width: 500px; background: var(--card); padding: 30px;
-    border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-}
+.container { width: 100%; max-width: 500px; background: var(--card); padding: 30px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
 
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 h1 { margin: 0; color: var(--muted); font-weight: 300; letter-spacing: 2px; font-size: 1.4rem; }
 
-/* Progress Bar */
-.progress-container {
-    width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px;
-    margin-bottom: 20px; overflow: hidden;
-}
-#progress-bar {
-    height: 100%; background: var(--romance); width: 0%; transition: width 0.5s ease;
-}
+.progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+#progress-bar { height: 100%; background: var(--romance); width: 0%; transition: width 0.5s ease; }
 
-.stats-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px;
-    text-align: center; background: var(--bg); padding: 15px; border-radius: 20px;
-}
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; text-align: center; background: var(--bg); padding: 15px; border-radius: 20px; }
 .stat-box span { display: block; font-size: 0.6rem; text-transform: uppercase; color: var(--muted); }
 .stat-box strong { font-size: 1.1rem; color: var(--text); }
 
 .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+#genre-selector { max-height: 140px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.05); border-radius: 18px; padding: 15px; background: var(--bg); }
+.genre-option { display: inline-flex; align-items: center; margin-right: 10px; margin-bottom: 8px; cursor: pointer; font-size: 0.7rem; background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 20px; }
 
-#genre-selector {
-    max-height: 140px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 18px; padding: 15px; background: var(--bg); font-size: 0.85rem;
-}
-.genre-option {
-    display: inline-flex; align-items: center; margin-right: 10px; margin-bottom: 8px;
-    cursor: pointer; user-select: none; color: var(--text); font-size: 0.7rem;
-    background: rgba(0,0,0,0.03); padding: 4px 10px; border-radius: 20px; transition: 0.2s;
-}
-.genre-option input { margin-right: 6px; }
+input[type="text"], select { padding: 14px; border: 1px solid rgba(0,0,0,0.05); border-radius: 15px; background: #fafafa; outline: none; }
+.add-btn, .share-btn { border: none; padding: 14px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+.add-btn { background-color: var(--romance); }
+.share-btn { background-color: var(--mystery); color: var(--text); }
 
-.sort-row { display: flex; gap: 10px; margin-bottom: 20px; }
-.sort-row select, .sort-row input { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); font-size: 0.8rem; background: #fafafa; }
-
-input[type="text"] { padding: 14px; border: 1px solid rgba(0,0,0,0.05); border-radius: 15px; background: #fafafa; outline: none; }
-.add-btn, .share-btn { background-color: var(--romance); border: none; padding: 14px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; width: 100%; }
-.share-btn { background-color: var(--mystery); color: var(--text); margin-top: 20px; }
-
-/* Sections */
 .section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 10px 0; margin-top: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-.section-header h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0; }
-.arrow { font-size: 0.7rem; color: var(--muted); transition: 0.3s; }
+.section-header h3 { font-size: 0.8rem; text-transform: uppercase; color: var(--muted); margin: 0; }
+.arrow { font-size: 0.7rem; transition: 0.3s; }
 .collapsed .arrow { transform: rotate(-90deg); }
-.collapsed + .section-content { display: none; }
 
-.book-card {
-    background: var(--bg); padding: 15px; border-radius: 20px; margin-bottom: 12px;
-    display: flex; align-items: center; gap: 15px; border-left: 6px solid transparent;
-}
+.book-card { background: var(--bg); padding: 15px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border-left: 6px solid transparent; }
 .book-cover { width: 45px; height: 65px; border-radius: 5px; object-fit: cover; background: #eee; }
 .letter-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; text-transform: uppercase; }
 
-.action-btn { border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; margin-right: 5px; }
+.action-btn { border: none; padding: 5px 10px; border-radius: 8px; font-size: 0.65rem; cursor: pointer; text-decoration: none; display: inline-block; }
 
-#modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000;
-}
+#modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; }
 .modal { background: white; padding: 30px; border-radius: 25px; width: 260px; text-align: center; }

@@ -8,13 +8,11 @@ const colors = {
     'Manhwa': '#9bf6ff', 'Manhua': '#bdb2ff', 'Dark': '#6b705c'
 };
 
-// Initialize Genre Selectors
 const checkboxList = document.getElementById('checkbox-list');
 Object.keys(colors).forEach(g => {
     checkboxList.innerHTML += `<label class="genre-option"><input type="checkbox" name="genre" value="${g}"> ${g}</label>`;
 });
 
-// Theme Handling
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
@@ -23,14 +21,11 @@ if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-m
 
 function toggleSection(header) { header.classList.toggle('collapsed'); }
 
-// --- API & COMMERCIAL LOGIC ---
 async function fetchBookData(title, author) {
     try {
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title + ' ' + author)}&maxResults=1`);
-        const data = await response.json();
-        if (data.items && data.items.length > 0) {
-            return data.items[0].volumeInfo.imageLinks?.thumbnail || null;
-        }
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title + ' ' + author)}&maxResults=1`);
+        const data = await res.json();
+        return data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail || null;
     } catch (e) { return null; }
 }
 
@@ -42,7 +37,8 @@ async function addBook() {
     if(!title) return;
 
     const cover = await fetchBookData(title, author);
-    const shopUrl = `https://www.amazon.in/s?k=${encodeURIComponent(title + ' ' + author)}&tag=YOUR_ID_HERE`;
+    // FIXED: Using absolute URL to prevent 404
+    const shopUrl = `https://www.amazon.in/s?k=${encodeURIComponent(title + ' ' + author)}`;
 
     library.push({ 
         id: Date.now(), title, author, cover, shopUrl,
@@ -51,19 +47,21 @@ async function addBook() {
     });
 
     updateUI();
-    document.getElementById('title').value = ''; 
-    document.getElementById('author').value = '';
+    document.getElementById('title').value = ''; document.getElementById('author').value = '';
     document.querySelectorAll('input[name="genre"]').forEach(cb => cb.checked = false);
 }
 
+function deleteBook(id) {
+    if(confirm("Delete this book?")) { library = library.filter(b => b.id !== id); updateUI(); }
+}
+
+function clearAll() {
+    if(confirm("Wipe entire shelf?")) { library = []; localStorage.clear(); updateUI(); }
+}
+
 function moveStatus(id, newStatus) {
-    if(newStatus === 'read') { 
-        currentBookId = id; 
-        document.getElementById('modal-overlay').style.display = 'flex'; 
-    } else { 
-        library = library.map(b => b.id === id ? {...b, status: newStatus} : b); 
-        updateUI(); 
-    }
+    if(newStatus === 'read') { currentBookId = id; document.getElementById('modal-overlay').style.display = 'flex'; }
+    else { library = library.map(b => b.id === id ? {...b, status: newStatus} : b); updateUI(); }
 }
 
 function confirmRating() {
@@ -91,26 +89,37 @@ function updateUI() {
                     <div style="margin-bottom:4px;">${b.genres.map(g => `<span class="genre-tag">${g}</span>`).join('')}</div>
                     <strong>${b.title}</strong><br><small style="color:var(--muted)">${b.author}</small>
                 </div>
-                <div class="btn-group">
+                <div style="text-align: right;">
                     <div style="margin-bottom:5px;">
                         ${b.status === 'tbr' ? `<button class="action-btn" style="background:var(--fiction)" onclick="moveStatus(${b.id}, 'reading')">read</button>` : ''}
                         ${b.status === 'reading' ? `<button class="action-btn" style="background:var(--nonfiction)" onclick="moveStatus(${b.id}, 'read')">done</button>` : ''}
-                        ${b.status === 'read' ? `<span>⭐${b.rating}</span>` : ''}
+                        <button class="action-btn" style="background:#ffb5a7" onclick="deleteBook(${b.id})">🗑️</button>
                     </div>
-                    <a href="${b.shopUrl}" target="_blank" class="action-btn" style="background:var(--academic); text-decoration:none; display:inline-block;">🛒 shop</a>
+                    <a href="${b.shopUrl}" target="_blank" class="action-btn" style="background:var(--academic); color:var(--text)">🛒 shop</a>
                 </div>
             </div>`;
     });
 
-    Object.keys(contents).forEach(s => document.getElementById(s + '-content').innerHTML = contents[s] || '<p style="font-size:0.7rem; color:var(--muted); text-align:center;">Empty shelf.</p>');
-    
-    // Update Stats & Progress Bar
+    Object.keys(contents).forEach(s => document.getElementById(s + '-content').innerHTML = contents[s] || '<p style="font-size:0.7rem; color:var(--muted); text-align:center;">Empty.</p>');
     document.getElementById('stat-total').innerText = totalRead;
     document.getElementById('stat-reading').innerText = library.filter(b => b.status === 'reading').length;
     document.getElementById('stat-avg').innerText = totalRead ? (sumRating/totalRead).toFixed(1) : '0';
-    
-    const progress = library.length ? (totalRead / library.length) * 100 : 0;
-    document.getElementById('progress-bar').style.width = progress + "%";
+    document.getElementById('progress-bar').style.width = library.length ? (totalRead / library.length * 100) + "%" : "0%";
+}
+
+async function shareShelf() {
+    const readBooks = library.filter(b => b.status === 'read');
+    if (!readBooks.length) return;
+    const exportArea = document.createElement('div');
+    exportArea.style.cssText = "width: 400px; padding: 40px; background: #fff; position: absolute; left: -9999px;";
+    let html = `<h2 style="text-align:center; color:#9a8c98;">nook favorites.</h2>`;
+    readBooks.slice(0, 6).forEach(b => {
+        html += `<div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;"><div style="width:30px; height:30px; background:${colors[b.genres[0]]}; border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;">${b.title[0]}</div><div><strong style="color:#4a4e69">${b.title}</strong><br><small>⭐ ${b.rating}/5</small></div></div>`;
+    });
+    exportArea.innerHTML = html; document.body.appendChild(exportArea);
+    const canvas = await html2canvas(exportArea);
+    const link = document.createElement('a'); link.download = 'nook.png'; link.href = canvas.toDataURL(); link.click();
+    document.body.removeChild(exportArea);
 }
 
 updateUI();

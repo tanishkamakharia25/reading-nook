@@ -9,68 +9,71 @@
 </head>
 <body>
 
-    <div id="modal-overlay">
-        <div class="modal">
-            <h3>how was it?</h3>
-            <select id="rating-dropdown">
-                <option value="5">⭐⭐⭐⭐⭐ Perfection</option>
-                <option value="4">⭐⭐⭐⭐ Great</option>
-                <option value="3">⭐⭐⭐ Decent</option>
-                <option value="2">⭐⭐ Not for me</option>
-                <option value="1">⭐ DNF</option>
-            </select>
-            <button class="add-btn" onclick="confirmRating()">save rating</button>
-        </div>
+<div id="modal-overlay">
+    <div class="modal">
+        <h3>how was it?</h3>
+        <select id="rating-dropdown">
+            <option value="5">⭐⭐⭐⭐⭐ Perfection</option>
+            <option value="4">⭐⭐⭐⭐ Great</option>
+            <option value="3">⭐⭐⭐ Decent</option>
+            <option value="2">⭐⭐ Not for me</option>
+            <option value="1">⭐ DNF</option>
+        </select>
+        <button class="add-btn" onclick="confirmRating()">save rating</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>the reading nook.</h1>
+        <button class="mode-toggle" onclick="toggleDarkMode()">Mode</button>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <h1>the reading nook.</h1>
-            <button class="mode-toggle" onclick="toggleDarkMode()">Mode</button>
-        </div>
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
 
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
+    <div class="stats-grid">
+        <div class="stat-box"><strong id="stat-total">0</strong><span>read</span></div>
+        <div class="stat-box"><strong id="stat-reading">0</strong><span>reading</span></div>
+        <div class="stat-box"><strong id="stat-avg">0</strong><span>avg vibe</span></div>
+    </div>
+    
+    <div class="input-group">
+        <input type="text" id="title" placeholder="book title...">
+        <input type="text" id="author" placeholder="author (optional)...">
+        <div id="genre-selector"><div id="checkbox-list"></div></div>
+        <button class="add-btn" onclick="addBook()">add to tbr</button>
+    </div>
 
-        <div class="stats-grid">
-            <div class="stat-box"><strong id="stat-total">0</strong><span>read</span></div>
-            <div class="stat-box"><strong id="stat-reading">0</strong><span>reading</span></div>
-            <div class="stat-box"><strong id="stat-avg">0</strong><span>avg vibe</span></div>
-        </div>
-        
-        <div class="input-group">
-            <input type="text" id="title" placeholder="book title...">
-            <input type="text" id="author" placeholder="author (optional)...">
-            <div id="genre-selector"><div id="checkbox-list"></div></div>
-            <button class="add-btn" onclick="addBook()">add to tbr</button>
-        </div>
+    <div class="sort-row">
+        <input type="text" id="search-bar" placeholder="🔍 search..." onkeyup="updateUI()">
+        <select id="sort-by" onchange="updateUI()">
+            <option value="date">Latest</option>
+            <option value="title">A-Z</option>
+            <option value="rating">Top Rated</option>
+        </select>
+    </div>
 
-        <div class="sort-row">
-            <input type="text" id="search-bar" placeholder="🔍 search..." onkeyup="updateUI()">
-            <select id="sort-by" onchange="updateUI()">
-                <option value="date">Latest</option>
-                <option value="title">A-Z</option>
-                <option value="rating">Top Rated</option>
-            </select>
-        </div>
+    <div class="section-header" onclick="toggleSection(this)"><h3>on the nightstand.</h3><span class="arrow">▼</span></div>
+    <div id="reading-content" class="section-content"></div>
 
-        <div class="section-header" onclick="toggleSection(this)"><h3>on the nightstand.</h3><span class="arrow">▼</span></div>
-        <div id="reading-content" class="section-content"></div>
+    <div class="section-header collapsed" onclick="toggleSection(this)"><h3>tbr.</h3><span class="arrow">▼</span></div>
+    <div id="tbr-content" class="section-content"></div>
 
-        <div class="section-header collapsed" onclick="toggleSection(this)"><h3>tbr.</h3><span class="arrow">▼</span></div>
-        <div id="tbr-content" class="section-content"></div>
+    <div class="section-header collapsed" onclick="toggleSection(this)"><h3>already read.</h3><span class="arrow">▼</span></div>
+    <div id="read-content" class="section-content"></div>
 
-        <div class="section-header collapsed" onclick="toggleSection(this)"><h3>already read.</h3><span class="arrow">▼</span></div>
-        <div id="read-content" class="section-content"></div>
+    <div class="section-header collapsed" onclick="toggleSection(this)"><h3>the graveyard.</h3><span class="arrow">▼</span></div>
+    <div id="dnf-content" class="section-content"></div>
 
-        <div class="section-header collapsed" onclick="toggleSection(this)"><h3>the graveyard.</h3><span class="arrow">▼</span></div>
-        <div id="dnf-content" class="section-content"></div>
-
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="share-btn" onclick="shareShelf()">📸 share favorites</button>
-        <div class="genre-legend" id="legend"></div>
+        <button class="share-btn" style="background:#ffb5a7; flex: 0.3;" onclick="clearAll()">🗑️</button>
     </div>
+    <div class="genre-legend" id="legend"></div>
+</div>
 
-    <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
